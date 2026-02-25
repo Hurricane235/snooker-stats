@@ -1,0 +1,23 @@
+refresh_season:
+  name: Refresh Current Season
+  description: Manually refresh current season data for all Snooker Stats entries.
+
+refresh_rankings:
+  name: Refresh Rankings
+  description: Manually refresh rankings data for all Snooker Stats entries.
+
+refresh_upcoming:
+  name: Refresh Upcoming Matches
+  description: Manually refresh upcoming matches data for all Snooker Stats entries.
+
+refresh_events:
+  name: Refresh Events In Season
+  description: Manually refresh events-in-season data for all Snooker Stats entries.
+
+refresh_scores:
+  name: Refresh Current Match Scores
+  description: Manually refresh current match scores data for all Snooker Stats entries.
+
+refresh_all:
+  name: Refresh All Data
+  description: Manually refresh season, rankings, upcoming matches, events, and current match scores data for all Snooker Stats entries.

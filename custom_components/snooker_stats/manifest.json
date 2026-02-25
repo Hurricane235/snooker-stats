@@ -1,0 +1,15 @@
+{
+  "domain": "snooker_stats",
+  "name": "Snooker Stats",
+  "version": "0.1.0",
+  "documentation": "https://github.com/Hurricane235/snooker-stats",
+  "issue_tracker": "https://github.com/Hurricane235/snooker-stats/issues",
+  "codeowners": [
+    "@Hurricane235"
+  ],
+  "config_flow": true,
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "dependencies": [],
+  "integration_type": "service"
+}

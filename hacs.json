@@ -1,0 +1,7 @@
+{
+  "name": "Snooker Stats",
+  "content_in_root": false,
+  "render_readme": true,
+  "country": ["GB"],
+  "homeassistant": "2025.6.0"
+}

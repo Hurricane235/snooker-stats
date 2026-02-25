@@ -1,0 +1,7 @@
+{
+  "config": {
+    "error": {
+      "select_at_least_one_tour": "Select at least one tour type."
+    }
+  }
+}

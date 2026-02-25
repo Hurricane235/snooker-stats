@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Snooker Stats",
+        "description": "Configure access to the snooker.org API",
+        "data": {
+          "requested_by": "X-Requested-By header value",
+          "tours": "Tour types",
+          "enable_calendar": "Enable calendar entity for upcoming matches"
+        }
+      }
+    },
+    "error": {
+      "select_at_least_one_tour": "Select at least one tour type."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Snooker Stats Options",
+        "data": {
+          "tours": "Tour types",
+          "enable_calendar": "Enable calendar entity for upcoming matches"
+        }
+      }
+    }
+  }
+}
