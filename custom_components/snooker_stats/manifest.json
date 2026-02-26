@@ -1,7 +1,7 @@
 {
   "domain": "snooker_stats",
   "name": "Snooker Stats",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "documentation": "https://github.com/Hurricane235/snooker-stats",
   "issue_tracker": "https://github.com/Hurricane235/snooker-stats/issues",
   "codeowners": [
