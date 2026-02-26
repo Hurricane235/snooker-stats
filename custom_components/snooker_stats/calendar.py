@@ -8,21 +8,24 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from .const import DATA_COORD_EVENTS, DATA_COORD_UPCOMING, DOMAIN
+from .const import DATA_COORD_EVENTS, DATA_COORD_UPCOMING, DOMAIN, TOUR_LABELS
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     data = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([SnookerUpcomingCalendar(data[DATA_COORD_UPCOMING], data[DATA_COORD_EVENTS])], True)
+    upcoming_coord = data[DATA_COORD_UPCOMING]
+    events_coord = data[DATA_COORD_EVENTS]
+    entities = [SnookerUpcomingCalendar(upcoming_coord, events_coord, tour_code=tour_code) for tour_code in upcoming_coord.tours]
+    async_add_entities(entities, True)
 
 
 class SnookerUpcomingCalendar(CalendarEntity):
-    _attr_name = "Snooker Upcoming Matches"
-    _attr_unique_id = "snooker_org_calendar_upcoming"
-
-    def __init__(self, coord, events_coord):
+    def __init__(self, coord, events_coord, tour_code: str):
         self.coordinator = coord
         self.events_coordinator = events_coord
+        self.tour_code = tour_code
+        self._attr_name = f"Snooker Upcoming Matches ({TOUR_LABELS.get(tour_code, tour_code)})"
+        self._attr_unique_id = f"snooker_org_calendar_upcoming_{tour_code}"
         self._unsub_coordinator = None
         self._unsub_events_coordinator = None
 
@@ -56,6 +59,9 @@ class SnookerUpcomingCalendar(CalendarEntity):
         events: list[CalendarEvent] = []
 
         for m in matches:
+            if m.get("Tour") != self.tour_code:
+                continue
+
             raw = m.get("ScheduledDate")
             if not raw:
                 continue
@@ -100,10 +106,11 @@ class SnookerUpcomingCalendar(CalendarEntity):
         try:
             eid = int(event_id)
         except Exception:
-            return "Unknown - Unknown - Unknown"
+            return "Unknown - Unknown - Unknown - Unknown"
         event_map = (self.events_coordinator.data or {}).get("events_by_id", {})
         info = event_map.get(eid, {})
         name = str(info.get("Name") or "Unknown")
         event_type = str(info.get("Type") or "Unknown")
         city = str(info.get("City") or "Unknown")
-        return f"{name} - {event_type} - {city}"
+        venue = str(info.get("Venue") or "Unknown")
+        return f"{name} - {event_type} - {city} - {venue}"

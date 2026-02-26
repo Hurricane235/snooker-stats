@@ -42,6 +42,12 @@ SERVICE_REFRESH_SCORES = "refresh_scores"
 SERVICE_REFRESH_ALL = "refresh_all"
 
 
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload integration entry when options are updated."""
+    _LOGGER.debug("Reloading entry_id=%s due to updated options", entry.entry_id)
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
 async def _async_refresh_player_cache_task(hass: HomeAssistant, api: SnookerOrgApi, player_cache) -> None:
     """Run monthly cache refresh in background without surfacing task exceptions."""
     try:
@@ -154,6 +160,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "enable_calendar": enable_calendar,
         DATA_PLATFORMS_LOADED: False,
     }
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     if not hass.services.has_service(DOMAIN, SERVICE_REFRESH_SEASON):
         async def _refresh_key(data_key: str) -> int:
@@ -168,22 +175,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         async def _handle_refresh_season(call) -> None:
             refreshed = await _refresh_key(DATA_COORD_SEASON)
+            if refreshed == 0:
+                _LOGGER.warning("Manual service refresh_season completed with no active coordinators")
             _LOGGER.info("Manual service refresh_season completed: refreshed_entries=%s", refreshed)
 
         async def _handle_refresh_rankings(call) -> None:
             refreshed = await _refresh_key(DATA_COORD_RANKINGS)
+            if refreshed == 0:
+                _LOGGER.warning("Manual service refresh_rankings completed with no active coordinators")
             _LOGGER.info("Manual service refresh_rankings completed: refreshed_entries=%s", refreshed)
 
         async def _handle_refresh_upcoming(call) -> None:
             refreshed = await _refresh_key(DATA_COORD_UPCOMING)
+            if refreshed == 0:
+                _LOGGER.warning("Manual service refresh_upcoming completed with no active coordinators")
             _LOGGER.info("Manual service refresh_upcoming completed: refreshed_entries=%s", refreshed)
 
         async def _handle_refresh_events(call) -> None:
             refreshed = await _refresh_key(DATA_COORD_EVENTS)
+            if refreshed == 0:
+                _LOGGER.warning("Manual service refresh_events completed with no active coordinators")
             _LOGGER.info("Manual service refresh_events completed: refreshed_entries=%s", refreshed)
 
         async def _handle_refresh_scores(call) -> None:
             refreshed = await _refresh_key(DATA_COORD_SCORES)
+            if refreshed == 0:
+                _LOGGER.warning("Manual service refresh_scores completed with no active coordinators")
             _LOGGER.info("Manual service refresh_scores completed: refreshed_entries=%s", refreshed)
 
         async def _handle_refresh_all(call) -> None:
@@ -192,6 +209,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             refreshed_upcoming = await _refresh_key(DATA_COORD_UPCOMING)
             refreshed_events = await _refresh_key(DATA_COORD_EVENTS)
             refreshed_scores = await _refresh_key(DATA_COORD_SCORES)
+            if (refreshed_season + refreshed_rankings + refreshed_upcoming + refreshed_events + refreshed_scores) == 0:
+                _LOGGER.warning("Manual service refresh_all completed with no active coordinators")
             _LOGGER.info(
                 "Manual service refresh_all completed: season=%s rankings=%s upcoming=%s events=%s scores=%s",
                 refreshed_season,

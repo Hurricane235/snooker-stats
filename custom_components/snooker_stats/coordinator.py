@@ -179,7 +179,7 @@ class UpcomingMatchesCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for tr in self.tours:
                 tour_matches = await self.api.get_upcoming_matches(tr)
                 _LOGGER.debug("UpcomingMatchesCoordinator API response for tour=%s: count=%s", tr, len(tour_matches))
-                all_matches.extend(tour_matches)
+                all_matches.extend([{**match, "Tour": tr} for match in tour_matches])
 
             def as_int(pid: Any) -> int | None:
                 try:
@@ -197,6 +197,7 @@ class UpcomingMatchesCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
                 decorated.append(
                     {
+                        "Tour": str(m.get("Tour") or ""),
                         "EventID": as_int(m.get("EventID") or m.get("Event") or m.get("EID")),
                         "ScheduledDate": str(scheduled),
                         "Player1ID": as_int(p1),
@@ -291,16 +292,18 @@ class EventsInSeasonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "ID": event_id_int,
                     "Name": str(raw.get("Name") or raw.get("EventName") or ""),
                     "City": str(raw.get("City") or ""),
+                    "Venue": str(raw.get("Venue") or ""),
                     "Type": str(raw.get("Type") or ""),
                     "StartDate": str(raw.get("StartDate") or raw.get("Start") or ""),
                     "EndDate": str(raw.get("EndDate") or raw.get("End") or ""),
                 }
                 events_by_id[event_id_int] = event
                 _LOGGER.debug(
-                    "Event metadata: ID=%s Name=%s City=%s Type=%s",
+                    "Event metadata: ID=%s Name=%s City=%s Venue=%s Type=%s",
                     event["ID"],
                     event["Name"],
                     event["City"],
+                    event["Venue"],
                     event["Type"],
                 )
 

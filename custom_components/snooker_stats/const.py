@@ -27,7 +27,11 @@ TOUR_CHOICES = {
     "Q Tour": "q",
     "Seniors": "seniors",
     "Women": "women",
+    "EBSA": "ebsa",
+    "WSF": "wsf",
+    "Other": "other",
 }
+TOUR_LABELS = {code: label for label, code in TOUR_CHOICES.items()}
 
 # Ranking types (from API docs)
 RANKING_MONEY = "MoneyRankings"
