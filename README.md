@@ -43,6 +43,24 @@ During setup/options, configure:
 - One or more tour types
 - Whether to create the calendar entity
 
+## Screenshots
+
+### Integration Settings
+
+![Snooker Stats settings](images/settings.png)
+
+### Dashboard Example
+
+![Snooker Stats dashboard](images/dashboard.png)
+
+### Calendar (Month View)
+
+![Snooker calendar month view](images/calendar-1.png)
+
+### Calendar (Single Event Details)
+
+![Snooker calendar single event details](images/calendar-2.png)
+
 ## Important Startup Note (Player Cache)
 
 On first setup, the integration builds a player cache (up to top players plus lookups).  
