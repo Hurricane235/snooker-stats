@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -74,6 +75,31 @@ async def _async_refresh_all_coordinators(
         _LOGGER.exception("Initial coordinator refresh task failed")
 
 
+def _schedule_initial_refresh_after_start(
+    hass: HomeAssistant,
+    season_coord: SeasonCoordinator,
+    rankings_coord: RankingsCoordinator,
+    upcoming_coord: UpcomingMatchesCoordinator,
+    events_coord: EventsInSeasonCoordinator,
+    scores_coord: MatchScoresCoordinator,
+) -> None:
+    """Avoid heavy API bursts during HA boot; refresh once HA is fully started."""
+
+    async def _run_after_start() -> None:
+        # Small delay to let startup settle before external API bursts.
+        await asyncio.sleep(15)
+        await _async_refresh_all_coordinators(season_coord, rankings_coord, upcoming_coord, events_coord, scores_coord)
+
+    if hass.is_running:
+        hass.async_create_task(_run_after_start())
+        return
+
+    async def _on_started(_event) -> None:
+        hass.async_create_task(_run_after_start())
+
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _on_started)
+
+
 async def _async_initialize_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -115,9 +141,14 @@ async def _async_initialize_entry(
         await hass.config_entries.async_forward_entry_setups(entry, platforms)
         data[DATA_PLATFORMS_LOADED] = True
 
-        # Fetch initial data in background so setup never blocks on 403 backoff.
-        hass.async_create_task(
-            _async_refresh_all_coordinators(season_coord, rankings_coord, upcoming_coord, events_coord, scores_coord)
+        # Defer heavy API refresh until HA startup has finished.
+        _schedule_initial_refresh_after_start(
+            hass,
+            season_coord,
+            rankings_coord,
+            upcoming_coord,
+            events_coord,
+            scores_coord,
         )
         _LOGGER.debug("Deferred initialization complete for entry_id=%s", entry.entry_id)
     except asyncio.CancelledError:
