@@ -165,7 +165,7 @@ class UpcomingMatchesCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             hass,
             logger=_LOGGER,
             name="snooker_org_upcoming",
-            update_interval=timedelta(days=1),
+            update_interval=timedelta(hours=6),
         )
         self.api = api
         self.tours = tours
